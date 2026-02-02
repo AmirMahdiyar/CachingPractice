@@ -40,5 +40,21 @@ Because L1 cache is local to each instance, updating a record on **Server A** le
 * **Step 3:** Every running instance has its own private queue bound to that exchange.
 * **Step 4:** The MassTransit Consumer receives the message and calls `_hybridCache.RemoveAsync(key)`, clearing the local L1.
 
+### 3. Hosted Service for Syncing (Background Processing)
+To keep the API highly responsive, we implemented a dedicated background synchronization layer:
+* **Producer-Consumer Pattern:** The Controller pushes heavy tasks (like cache re-population or post-delete syncs) into a thread-safe `System.Threading.Channels.Channel`.
+* **The Worker:** A `BackgroundService` (Worker) dequeues these tasks and executes them asynchronously.
+* **Service Scoping:** Since the worker is a Singleton, we used `IServiceScopeFactory` to create a new scope for each task. This allows the worker to safely use **Scoped** dependencies like `DbContext` without encountering `ObjectDisposedException`.
+
+### 4. Fluent Builder Pattern
+The startup configuration is refactored into a **Fluent API** style using Extension Methods. This keeps the `Program.cs` clean and modular:
+```csharp
+var builder = WebApplication.CreateBuilder(args)
+    .AddCaching()
+    .AddDatabase()
+    .AddMessageBroker()
+    .AddHostedServices(); // Includes our Channel Workers
 ---
+
+
 
