@@ -1,21 +1,16 @@
 ﻿
 using MassTransit;
-using Message;
 
 namespace CachingPractice.Publisher
 {
     public class SendEvent : ISendEvent
     {
         private readonly IPublishEndpoint _endPoint;
+        public SendEvent(IPublishEndpoint endPoint) => _endPoint = endPoint;
 
-        public SendEvent(IPublishEndpoint endPoint)
+        public async Task SendAsync<T>(T message, CancellationToken ct) where T : class
         {
-            _endPoint = endPoint;
-        }
-
-        public async Task SendAsync(string key, CancellationToken ct)
-        {
-            await _endPoint.Publish<ObjectKey>(new ObjectKey(key, Guid.NewGuid()), ct);
+            await _endPoint.Publish(message, ct);
         }
     }
     public static class InstanceInfo

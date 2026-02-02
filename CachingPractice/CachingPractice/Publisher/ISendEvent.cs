@@ -2,6 +2,6 @@
 {
     public interface ISendEvent
     {
-        Task SendAsync(string key, CancellationToken ct);
+        Task SendAsync<T>(T message, CancellationToken ct) where T : class;
     }
 }

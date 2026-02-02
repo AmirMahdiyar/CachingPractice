@@ -1,11 +1,11 @@
 ﻿namespace Message
 {
-    public class ObjectKey
+    public class ObjectDeleted
     {
         public string Key { get; set; }
         public Guid InstanceId { get; set; }
 
-        public ObjectKey(string key, Guid instanceId)
+        public ObjectDeleted(string key, Guid instanceId)
         {
             Key = key;
             InstanceId = instanceId;
